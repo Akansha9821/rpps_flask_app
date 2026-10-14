@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Data Science Project Recommender</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #25324a;
+        }
+
+        header {
+            background: #123b70;
+            color: white;
+            padding: 24px 7%;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+        header p {
+            margin: 0;
+            color: #d9e7fa;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .search-panel {
+            background: white;
+            padding: 26px;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px #172c4a12;
+        }
+
+        label {
+            display: block;
+            margin: 16px 0 8px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 13px 22px;
+            background: #1769d2;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0e50a8;
+        }
+
+        .error {
+            color: #b42318;
+            margin-top: 12px;
+        }
+
+        .results-heading {
+            margin: 32px 0 18px;
+        }
+
+        .project-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 3px 12px #172c4a08;
+        }
+
+        .project-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .project-card h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: #123b70;
+        }
+
+        .match {
+            background: #e0f2fe;
+            color: #075985;
+            padding: 8px 12px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+
+        .details {
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
+
+        .task-list {
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .task {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .empty {
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 24px;
+            color: #64748b;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 22px;
+            }
+
+            .container {
+                padding: 0 12px;
+            }
+
+            .search-panel, .project-card {
+                padding: 18px;
+            }
+
+            .project-top {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Project Recommendation System</h1>
+    <p>Discover projects that match your skills and experience.</p>
+</header>
+
+<main class="container">
+
+    <section class="search-panel">
+        <h2>Find Your Next Project</h2>
+
+        <form method="POST" action="/">
+            <label for="skills">Enter Your Skills</label>
+            <input
+                type="text"
+                id="skills"
+                name="skills"
+                placeholder="e.g. Python, SQL, Pandas, Machine Learning"
+                value="{{ selected_skills }}"
+                required
+            >
+
+            <label for="candidate_level">Experience Level</label>
+            <select id="candidate_level" name="candidate_level">
+                <option value="">All experience levels</option>
+                <option value="Beginner"
+                    {% if selected_level == "Beginner" %}selected{% endif %}>
+                    Beginner
+                </option>
+                <option value="Intermediate"
+                    {% if selected_level == "Intermediate" %}selected{% endif %}>
+                    Intermediate
+                </option>
+                <option value="Advanced"
+                    {% if selected_level == "Advanced" %}selected{% endif %}>
+                    Advanced
+                </option>
+            </select>
+
+            <button type="submit">Recommend Projects</button>
+        </form>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+    </section>
+
+    {% if recommendations %}
+        <h2 class="results-heading">Recommended Projects</h2>
+
+        {% for project in recommendations %}
+            <article class="project-card">
+                <div class="project-top">
+                    <h3>{{ project.project_title }}</h3>
+                    <span class="match">
+                        {{ project.match_percentage }}% match
+                    </span>
+                </div>
+
+                <div class="details">
+                    <p>
+                        <strong>Project ID:</strong>
+                        {{ project.project_id }}
+                    </p>
+
+                    <p>
+                        <strong>Category:</strong>
+                        {{ project.subject_category or "Not specified" }}
+                    </p>
+
+                    <p>
+                        <strong>Experience Level:</strong>
+                        {{ project.candidate_level or "Not specified" }}
+                    </p>
+
+                    <p>
+                        <strong>Primary Skills:</strong>
+                        {{ project.primary_skills or "Not specified" }}
+                    </p>
+
+                    <p>
+                        <strong>Tools & Technologies:</strong>
+                        {{ project.tools_technologies or "Not specified" }}
+                    </p>
+                </div>
+
+                {% if project.tasks %}
+                    <div class="task-list">
+                        <h4>Project Tasks</h4>
+
+                        {% for task in project.tasks %}
+                            <div class="task">
+                                <strong>
+                                    {{ task.task_title or "Untitled task" }}
+                                </strong>
+
+                                {% if task.task_description %}
+                                    <p>{{ task.task_description }}</p>
+                                {% endif %}
+
+                                {% if task.required_skills %}
+                                    <p>
+                                        <strong>Required Skills:</strong>
+                                        {{ task.required_skills }}
+                                    </p>
+                                {% endif %}
+
+                                {% if task.tools_technologies %}
+                                    <p>
+                                        <strong>Tools:</strong>
+                                        {{ task.tools_technologies }}
+                                    </p>
+                                {% endif %}
+
+                                {% if task.estimated_duration_days %}
+                                    <p>
+                                        <strong>Duration:</strong>
+                                        {{ task.estimated_duration_days }} days
+                                    </p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </article>
+        {% endfor %}
+
+    {% elif request.method == "POST" and not error %}
+        <div class="empty">
+            No recommendations were generated. Try entering more specific
+            skills or checking the contents of your CSV files.
+        </div>
+    {% endif %}
+
+</main>
+
+<footer>
+    Data Science Project Recommendation System
+</footer>
+
+</body>
+</html>
